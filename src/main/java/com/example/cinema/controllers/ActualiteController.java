@@ -1,5 +1,6 @@
 package com.example.cinema.controllers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,11 +19,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cinema.entities.Actualite;
-
-
+import com.example.cinema.entities.Categorie;
+import com.example.cinema.entities.Film;
 import com.example.cinema.dao.IActualite;
 
 
@@ -31,6 +35,7 @@ import com.example.cinema.dao.IActualite;
 @CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/api")
 public class ActualiteController {
+	
 	@Autowired
 	IActualite actualite;
 	@GetMapping("/actualites")
@@ -39,7 +44,7 @@ public class ActualiteController {
         return actualite.findAll();
 	    
 	}
-	@PutMapping("/actualites/{id}")
+	@PutMapping("/actualite/{id}")
 	public ResponseEntity<Actualite> updateActualite(@PathVariable(value = "id") int employeeId,
 			@Valid @RequestBody Actualite employeeDetails) throws ResourceNotFoundException {
 		Actualite employee = actualite.findById((Integer) employeeId)
@@ -80,5 +85,31 @@ public class ActualiteController {
 		response.put("deleted", Boolean.TRUE);
 		return response;
 	}
+	@Autowired
+    JdbcTemplate jdbcTemplate;
+	@RequestMapping(value = "/actualitebysearch/{desc}", method = RequestMethod.GET)
+	  @ResponseBody
+	public List<Actualite> findAllBy( @PathVariable(value = "desc") String desc) {
 
+		String sql = "SELECT * FROM `actualite` as a WHERE a.description_actualite LIKE  '%"+desc+"%'";
+
+		List<Actualite> customerss = new ArrayList<>();
+		  
+      List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+
+      for (Map row : rows) {
+    	  Actualite obj = new Actualite();
+          obj.setTitre_actualite((String) row.get("titre_actualite"));
+          obj.setId((Integer) row.get("id"));
+          obj.setDescription_actualite((String) row.get("description_actualite"));
+          obj.setPhoto_actualite((String) row.get("photo_actualite"));
+          obj.setContenu_actualite((String) row.get("contenu_actualite"));
+          
+          customerss.add(obj);
+      }
+
+      return customerss;
+      
+	}
+	
 }

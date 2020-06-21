@@ -1,11 +1,13 @@
 package com.example.cinema.entities;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
 import lombok.AllArgsConstructor;
@@ -140,6 +142,7 @@ public class Film implements Serializable {
 		this.categorie = categorie;
 	}
 	
-	
+	@ManyToMany(mappedBy="film")
+	private List<Salle> salle;
 	
 }
